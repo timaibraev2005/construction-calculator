@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Baluster Calculator</title>
+    <meta name="description" content="Professional baluster calculator for construction">
+    <meta name="theme-color" content="#1a365d">
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" href="icons/icon-192.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            padding: 15px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1a365d;
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            padding: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4299e1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .input-hint {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .thickness-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .example-tag {
+            background: #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .example-tag:hover {
+            background: #cbd5e0;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(66, 153, 225, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            padding: 25px;
+            background: #f7fafc;
+            border-top: 2px solid #e2e8f0;
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .result-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #2d3748;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px;
+            display: none;
+            border: 1px solid #feb2b2;
+        }
+
+        .info-section {
+            padding: 20px;
+            background: #ebf8ff;
+            border-top: 2px solid #bee3f8;
+            font-size: 0.9rem;
+            color: #2c5282;
+            line-height: 1.5;
+        }
+
+        .install-prompt {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: #48bb78;
+            color: white;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            display: none;
+            z-index: 1000;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .install-btn {
+            background: white;
+            color: #48bb78;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 15px;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .thickness-examples {
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Baluster Calculator</h1>
+            <p>Professional spacing calculator</p>
+        </div>
+
+        <div class="input-section">
+            <div class="input-group">
+                <label for="wTotal">Distance between posts (inches):</label>
+                <input type="text" id="wTotal" value="120" placeholder="120 or 120.5">
+                <div class="input-hint">Enter whole number or decimal</div>
+            </div>
+            
+            <div class="input-group">
+                <label for="thickness">Baluster thickness (inches):</label>
+                <input type="text" id="thickness" value="5/8" placeholder="0.625 or 5/8 or ⅝">
+                <div class="input-hint">Supports decimals, fractions, and construction symbols</div>
+                
+                <div class="thickness-examples">
+                    <div class="example-tag" onclick="document.getElementById('thickness').value = '5/8'">5/8</div>
+                    <div class="example-tag" onclick="document.getElementById('thickness').value = '7/8'">7/8</div>
+                    <div class="example-tag" onclick="document.getElementById('thickness').value = '1/2'">1/2</div>
+                    <div class="example-tag" onclick="document.getElementById('thickness').value = '1'">1</div>
+                </div>
+            </div>
+            
+            <button class="calculate-btn" onclick="calculate()">Calculate</button>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <div class="result-title">Optimal Configuration</div>
+            <div class="result-grid">
+                <div class="result-item">
+                    <div class="result-label">Number of Balusters</div>
+                    <div class="result-value" id="resultN">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Post to Center (C1)</div>
+                    <div class="result-value" id="resultC1">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Center Spacing (Step)</div>
+                    <div class="result-value" id="resultStep">-</div>
+                </div>
+                <div class="result-item">
+                    <div class="result-label">Spacing Type</div>
+                    <div class="result-value" id="resultType">-</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="info-section">
+            <strong>Note:</strong> Calculator finds optimal spacing between 3-4 inches. Works completely offline. Install to home screen for best experience.
+        </div>
+    </div>
+
+    <div class="install-prompt" id="installPrompt">
+        Install Baluster Calculator for quick access!
+        <button class="install-btn" onclick="installApp()">Install</button>
+    </div>
+
+    <script>
+        // Improved fraction handling system
+        class FractionConverter {
+            constructor() {
+                this.fractionMap = {
+                    '½': 0.5, '¼': 0.25, '¾': 0.75,
+                    '⅛': 0.125, '⅜': 0.375, '⅝': 0.625, '⅞': 0.875
+                };
+                
+                this.fractionPatterns = [
+                    /^(\d+)[\s\-]*(\d+)\/(\d+)$/,  // "1 1/2" or "1-1/2"
+                    /^(\d+)[\s\-]*([½¼¾⅛⅜⅝⅞])$/,  // "1 ½" or "1-½"
+                    /^(\d+)([½¼¾⅛⅜⅝⅞])$/,         // "1½" (no space)
+                    /^(\d+)\/(\d+)$/,              // "1/2"
+                    /^([½¼¾⅛⅜⅝⅞])$/,              // "½" (just fraction)
+                    /^(\d+)$/,                     // "1" (whole number)
+                    /^(\d+\.\d+)$/                 // "1.5" (decimal)
+                ];
+            }
+
+            parseFraction(input) {
+                if (typeof input === 'number') return input;
+                
+                let str = input.toString().trim().replace(',', '.');
+                
+                for (let pattern of this.fractionPatterns) {
+                    const match = str.match(pattern);
+                    if (match) {
+                        return this.handleMatch(match);
+                    }
+                }
+                
+                const directConvert = this.tryDirectConversion(str);
+                if (directConvert !== null) return directConvert;
+                
+                throw new Error(`Cannot parse fraction: ${input}`);
+            }
+
+            handleMatch(match) {
+                if (match[1] && match[2] && match[3]) {
+                    return parseInt(match[1]) + (parseInt(match[2]) / parseInt(match[3]));
+                }
+                
+                if (match[1] && this.fractionMap[match[2]]) {
+                    return parseInt(match[1]) + this.fractionMap[match[2]];
+                }
+                
+                if (match[1] && this.fractionMap[match[2]]) {
+                    return parseInt(match[1]) + this.fractionMap[match[2]];
+                }
+                
+                if (match[1] && match[2]) {
+                    return parseInt(match[1]) / parseInt(match[2]);
+                }
+                
+                if (this.fractionMap[match[1]]) {
+                    return this.fractionMap[match[1]];
+                }
+                
+                if (match[1]) {
+                    return parseFloat(match[1]);
+                }
+                
+                if (match[1]) {
+                    return parseFloat(match[1]);
+                }
+                
+                return null;
+            }
+
+            tryDirectConversion(str) {
+                const decimal = parseFloat(str);
+                if (!isNaN(decimal)) return decimal;
+                
+                for (let [char, value] of Object.entries(this.fractionMap)) {
+                    if (str.includes(char)) {
+                        return this.parseComplexFraction(str);
+                    }
+                }
+                
+                return null;
+            }
+
+            parseComplexFraction(str) {
+                let total = 0;
+                let currentNumber = '';
+                
+                for (let i = 0; i < str.length; i++) {
+                    const char = str[i];
+                    
+                    if (char >= '0' && char <= '9') {
+                        currentNumber += char;
+                    } else if (char === '.' || char === ',') {
+                        currentNumber += '.';
+                    } else if (this.fractionMap[char]) {
+                        if (currentNumber) {
+                            total += parseFloat(currentNumber);
+                            currentNumber = '';
+                        }
+                        total += this.fractionMap[char];
+                    } else if (char === ' ' || char === '-') {
+                        if (currentNumber) {
+                            total += parseFloat(currentNumber);
+                            currentNumber = '';
+                        }
+                    }
+                }
+                
+                if (currentNumber) {
+                    total += parseFloat(currentNumber);
+                }
+                
+                return total;
+            }
+
+            toConstructionFraction(decimal, denominator = 16) {
+                if (decimal === 0) return "0";
+                
+                const whole = Math.floor(decimal);
+                const fraction = decimal - whole;
+                
+                if (Math.abs(fraction) < 0.0001) return whole.toString();
+                
+                const numerator = Math.round(fraction * denominator);
+                const gcd = this.GCD(numerator, denominator);
+                const simpleNum = numerator / gcd;
+                const simpleDen = denominator / gcd;
+                
+                const commonFractions = {
+                    '1/2': '½', '1/4': '¼', '3/4': '¾',
+                    '1/8': '⅛', '3/8': '⅜', '5/8': '⅝', '7/8': '⅞'
+                };
+                
+                const fractionStr = `${simpleNum}/${simpleDen}`;
+                const fractionSymbol = commonFractions[fractionStr];
+                
+                if (fractionSymbol) {
+                    return whole === 0 ? fractionSymbol : `${whole} ${fractionSymbol}`;
+                }
+                
+                if (simpleDen === 1) {
+                    return (whole + simpleNum).toString();
+                }
+                
+                if (whole === 0) {
+                    return fractionStr;
+                }
+                
+                return `${whole} ${simpleNum}/${simpleDen}`;
+            }
+
+            GCD(a, b) {
+                return b === 0 ? a : this.GCD(b, a % b);
+            }
+        }
+
+        const fractionConverter = new FractionConverter();
+
+        // Main calculation function with S < 4 condition
+        function calculateBaluster(W_total, T) {
+            try {
+                const u = 16;
+                let T_num = fractionConverter.parseFraction(T);
+                const TARGET_S = 3.0;
+                const MAX_DIFF = 0.25;
+                
+                let bestExact = null;
+                let bestApprox = null;
+
+                // Search for exact matches (A = S) - FIXED: S < 4 instead of <= 4
+                for (let N = 1; N <= 300; N++) {
+                    const S_units = (W_total * u - N * T_num * u) / (N + 1);
+                    
+                    if (S_units > 0 && Math.abs(S_units - Math.round(S_units)) < 0.0001) {
+                        const S_inch = S_units / u;
+                        
+                        // FIXED: Use < 4 instead of <= 4
+                        if (S_inch >= 3 && S_inch < 4) {
+                            const C1 = S_inch + T_num / 2;
+                            const Step = S_inch + T_num;
+                            const diffFromTarget = Math.abs(S_inch - TARGET_S);
+                            
+                            if (!bestExact || diffFromTarget < bestExact.diffFromTarget) {
+                                bestExact = {
+                                    N: N,
+                                    S: S_inch,
+                                    C1: C1,
+                                    Step: Step,
+                                    diffFromTarget: diffFromTarget,
+                                    type: "Exact"
+                                };
+                            }
+                        }
+                    }
+                }
+
+                if (bestExact) {
+                    return {
+                        success: true,
+                        N: bestExact.N,
+                        C1: fractionConverter.toConstructionFraction(bestExact.C1),
+                        Step: fractionConverter.toConstructionFraction(bestExact.Step),
+                        type: bestExact.type,
+                        spacing: bestExact.S
+                    };
+                }
+
+                // Search for approximate matches - FIXED: S < 4 instead of <= 4
+                let approxResults = [];
+                for (let N = 1; N <= 300; N++) {
+                    const S_exact = (W_total - N * T_num) / (N + 1);
+                    const S_rounded = Math.round(S_exact * u) / u;
+                    const A_calculated = (W_total - N * T_num - (N - 1) * S_rounded) / 2;
+                    const A_rounded = Math.round(A_calculated * u) / u;
+                    
+                    const diff = Math.abs(A_rounded - S_rounded);
+                    
+                    // FIXED: Use < 4 instead of <= 4
+                    if (A_rounded > 0 && S_rounded > 0 && diff <= MAX_DIFF && diff > 0 && 
+                        S_rounded >= 3 && S_rounded < 4) {
+                        
+                        const C1 = A_rounded + T_num / 2;
+                        const Step = S_rounded + T_num;
+                        
+                        approxResults.push({
+                            N: N,
+                            S: S_rounded,
+                            C1: C1,
+                            Step: Step,
+                            diff: diff,
+                            type: "Approx"
+                        });
+                    }
+                }
+
+                if (approxResults.length > 0) {
+                    approxResults.sort((a, b) => a.diff - b.diff);
+                    const bestApprox = approxResults[0];
+                    
+                    return {
+                        success: true,
+                        N: bestApprox.N,
+                        C1: fractionConverter.toConstructionFraction(bestApprox.C1),
+                        Step: fractionConverter.toConstructionFraction(bestApprox.Step),
+                        type: bestApprox.type + " (Diff: " + fractionConverter.toConstructionFraction(bestApprox.diff) + ")",
+                        spacing: bestApprox.S
+                    };
+                }
+
+                return { 
+                    success: false, 
+                    message: "No suitable configuration found with spacing between 3-4 inches. Try adjusting parameters." 
+                };
+                
+            } catch (error) {
+                return { 
+                    success: false, 
+                    message: "Calculation error: " + error.message 
+                };
+            }
+        }
+
+        function calculate() {
+            const wTotalInput = document.getElementById('wTotal');
+            const thicknessInput = document.getElementById('thickness');
+            const resultSection = document.getElementById('resultSection');
+            const errorMessage = document.getElementById('errorMessage');
+            
+            resultSection.classList.remove('active');
+            errorMessage.style.display = 'none';
+            
+            let wTotal;
+            try {
+                wTotal = fractionConverter.parseFraction(wTotalInput.value);
+            } catch (e) {
+                showError("Please enter a valid distance (e.g., 120, 120.5, 120½).");
+                return;
+            }
+            
+            if (isNaN(wTotal) || wTotal <= 0) {
+                showError("Please enter a valid positive number for total distance.");
+                return;
+            }
+            
+            if (wTotal < 10) {
+                showError("Total distance should be at least 10 inches.");
+                return;
+            }
+            
+            const thickness = thicknessInput.value;
+            if (!thickness) {
+                showError("Please enter baluster thickness.");
+                return;
+            }
+            
+            let thicknessNum;
+            try {
+                thicknessNum = fractionConverter.parseFraction(thickness);
+            } catch (e) {
+                showError("Please enter a valid baluster thickness (e.g., 5/8, 0.625, ⅝, 1/2, 1).");
+                return;
+            }
+            
+            if (isNaN(thicknessNum) || thicknessNum <= 0) {
+                showError("Please enter a valid baluster thickness (e.g., 5/8, 0.625, ⅝, 1/2, 1).");
+                return;
+            }
+            
+            const result = calculateBaluster(wTotal, thickness);
+            
+            if (result.success) {
+                document.getElementById('resultN').textContent = result.N;
+                document.getElementById('resultC1').textContent = result.C1;
+                document.getElementById('resultStep').textContent = result.Step;
+                document.getElementById('resultType').textContent = result.type;
+                resultSection.classList.add('active');
+            } else {
+                showError(result.message);
+            }
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // PWA Installation
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            setTimeout(() => {
+                document.getElementById('installPrompt').style.display = 'block';
+            }, 3000);
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        document.getElementById('installPrompt').style.display = 'none';
+                    }
+                    deferredPrompt = null;
+                });
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then((registration) => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch((registrationError) => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+
+        document.getElementById('wTotal').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculate();
+        });
+
+        document.getElementById('thickness').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') calculate();
+        });
+
+        window.addEventListener('load', () => {
+            document.getElementById('wTotal').focus();
+        });
+    </script>
+</body>
+</html>
