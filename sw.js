@@ -1,10 +1,10 @@
 const CACHE_NAME = 'construction-calculator-v1';
 const urlsToCache = [
-    '/Constuction-Calculator/',
-    '/Constuction-Calculator/index.html',
-    '/Constuction-Calculator/manifest.json',
-    '/Constuction-Calculator/icons/icon-192.png',
-    '/Constuction-Calculator/icons/icon-512.png'
+    '/construction-calculator/',
+    '/construction-calculator/index.html',
+    '/construction-calculator/manifest.json',
+    '/construction-calculator/icons/icon-192.png',
+    '/construction-calculator/icons/icon-512.png'
 ];
 
 self.addEventListener('install', function(event) {
@@ -44,4 +44,5 @@ self.addEventListener('activate', function(event) {
         })
     );
 });
+
 
