@@ -1,4 +1,4 @@
-const CACHE_NAME = 'construction-calculator-v1';
+const CACHE_NAME = 'construction-calculator';
 const urlsToCache = [
     '/construction-calculator/',
     '/construction-calculator/index.html',
@@ -44,3 +44,4 @@ self.addEventListener('activate', function(event) {
         })
     );
 });
+
