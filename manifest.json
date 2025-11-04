@@ -1,7 +1,7 @@
 {
-    "name": "Baluster Calculator",
-    "short_name": "BalusterCalc",
-    "description": "Professional baluster spacing calculator for construction",
+    "name": "Construction Calculator",
+    "short_name": "ConstrCalc",
+    "description": "Professional construction calculators for baluster spacing and rail height",
     "start_url": "https://timaibraev2005.github.io/baluster-calculator/",
     "display": "standalone",
     "background_color": "#1a365d",
@@ -23,7 +23,4 @@
         }
     ],
     "categories": ["business", "productivity", "utilities"]
-
 }
-
-
