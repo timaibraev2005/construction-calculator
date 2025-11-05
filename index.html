@@ -1009,151 +1009,196 @@
         });
     </script>
 
-    <!-- Rail Height Calculator Script (ORIGINAL) -->
+    <!-- Rail Height Calculator Script (CORRECTED VERSION) -->
     <script>
-        // Fraction converter for rail calculator
-        class RailFractionConverter {
-            constructor() {
-                this.fractionMap = {
-                    '½': 0.5, '¼': 0.25, '¾': 0.75,
-                    '⅛': 0.125, '⅜': 0.375, '⅝': 0.625, '⅞': 0.875
-                };
-            }
+        // Use the same FractionConverter as baluster calculator
+        const railFractionConverter = fractionConverter;
 
-            parseFraction(input) {
-                if (typeof input === 'number') return input;
-                
-                let str = input.toString().trim().replace(',', '.');
-                
-                // Handle mixed numbers with space or dash
-                const mixedPattern = /^(\d+)[\s\-]*(\d+)\/(\d+)$/;
-                const mixedMatch = str.match(mixedPattern);
-                if (mixedMatch) {
-                    return parseInt(mixedMatch[1]) + (parseInt(mixedMatch[2]) / parseInt(mixedMatch[3]));
-                }
-                
-                // Handle simple fractions
-                const fractionPattern = /^(\d+)\/(\d+)$/;
-                const fractionMatch = str.match(fractionPattern);
-                if (fractionMatch) {
-                    return parseInt(fractionMatch[1]) / parseInt(fractionMatch[2]);
-                }
-                
-                // Handle decimal
-                const decimal = parseFloat(str);
-                if (!isNaN(decimal)) return decimal;
-                
-                // Handle fraction symbols
-                if (this.fractionMap[str]) {
-                    return this.fractionMap[str];
-                }
-                
-                throw new Error(`Cannot parse fraction: ${input}`);
-            }
-
-            toFraction(decimal, denominator = 16) {
-                if (decimal === 0) return "0";
-                
-                const whole = Math.floor(decimal);
-                const fraction = decimal - whole;
-                
-                if (Math.abs(fraction) < 0.0001) return whole.toString();
-                
-                const numerator = Math.round(fraction * denominator);
-                const gcd = this.GCD(numerator, denominator);
-                const simpleNum = numerator / gcd;
-                const simpleDen = denominator / gcd;
-                
-                const commonFractions = {
-                    '1/2': '½', '1/4': '¼', '3/4': '¾',
-                    '1/8': '⅛', '3/8': '⅜', '5/8': '⅝', '7/8': '⅞'
-                };
-                
-                const fractionStr = `${simpleNum}/${simpleDen}`;
-                const fractionSymbol = commonFractions[fractionStr];
-                
-                if (fractionSymbol) {
-                    return whole === 0 ? fractionSymbol : `${whole} ${fractionSymbol}`;
-                }
-                
-                if (simpleDen === 1) {
-                    return (whole + simpleNum).toString();
-                }
-                
-                if (whole === 0) {
-                    return fractionStr;
-                }
-                
-                return `${whole} ${simpleNum}/${simpleDen}`;
-            }
-
-            GCD(a, b) {
-                return b === 0 ? a : this.GCD(b, a % b);
-            }
-        }
-
-        const railFractionConverter = new RailFractionConverter();
-
-        function calculateRailApp() {
+        // Calculation functions from original app.js
+        function calculateRakeAngle(rise, run) {
             try {
-                const riseInput = document.getElementById('rise').value;
-                const runInput = document.getElementById('run').value;
-                const railHeightInput = document.getElementById('railHeight').value;
-                const balustersPerTread = parseInt(document.getElementById('balustersPerTread').value);
-                const railThicknessInput = document.getElementById('railThickness').value;
-
-                const rise = railFractionConverter.parseFraction(riseInput);
-                const run = railFractionConverter.parseFraction(runInput);
-                const railHeight = railFractionConverter.parseFraction(railHeightInput);
-                const railThickness = railFractionConverter.parseFraction(railThicknessInput);
-
-                // Calculate rake angle
-                const rakeAngleRad = Math.atan(rise / run);
-                const rakeAngleDeg = (rakeAngleRad * 180 / Math.PI).toFixed(2);
-
-                // Calculate net baluster height at nosing
-                const netBalusterNosing = railHeight - railThickness;
-
-                // Calculate setbacks and heights for each baluster
-                const balusterSpacing = run / balustersPerTread;
-                const results = [];
-
-                for (let i = 1; i <= balustersPerTread; i++) {
-                    const setback = (i - 0.5) * balusterSpacing;
-                    const verticalOffset = setback * Math.tan(rakeAngleRad);
-                    const netBalusterHeight = netBalusterNosing - verticalOffset;
-                    
-                    results.push({
-                        setback: setback,
-                        height: netBalusterHeight
-                    });
-                }
-
-                // Display results
-                document.getElementById('rakeAngle').textContent = rakeAngleDeg + '°';
-                document.getElementById('netBalusterNosing').textContent = railFractionConverter.toFraction(netBalusterNosing);
-
-                for (let i = 0; i < 3; i++) {
-                    if (i < results.length) {
-                        document.getElementById('setback' + (i + 1)).textContent = railFractionConverter.toFraction(results[i].setback);
-                        document.getElementById('height' + (i + 1)).textContent = railFractionConverter.toFraction(results[i].height);
-                    } else {
-                        document.getElementById('setback' + (i + 1)).textContent = '-';
-                        document.getElementById('height' + (i + 1)).textContent = '-';
-                    }
-                }
-
-                document.getElementById('railResultSection').classList.add('active');
-                document.getElementById('railErrorMessage').style.display = 'none';
-
+                const riseNum = railFractionConverter.parseFraction(rise);
+                const runNum = railFractionConverter.parseFraction(run);
+                const angle = Math.atan(riseNum / runNum) * (180 / Math.PI);
+                return angle.toFixed(2);
             } catch (error) {
-                document.getElementById('railErrorMessage').textContent = 'Error: ' + error.message;
-                document.getElementById('railErrorMessage').style.display = 'block';
-                document.getElementById('railResultSection').classList.remove('active');
+                return 'Error';
             }
         }
 
-        // Add event listeners for Enter key
+        function calculateNetBalusterNosing(railHeight, railThickness, rise, run) {
+            try {
+                const rh = railFractionConverter.parseFraction(railHeight);
+                const rt = railFractionConverter.parseFraction(railThickness);
+                const r = railFractionConverter.parseFraction(rise);
+                const ru = railFractionConverter.parseFraction(run);
+                
+                const rakeAngle = Math.atan(r / ru) * (180 / Math.PI);
+                const nosingHeight = rh - (rt / Math.cos(rakeAngle * Math.PI / 180));
+                
+                return railFractionConverter.toConstructionFraction(nosingHeight);
+            } catch (error) {
+                return 'Error';
+            }
+        }
+
+        function calculateBalusterSetback1(run, balustersPerTread) {
+            try {
+                const runNum = railFractionConverter.parseFraction(run);
+                const setback1 = (runNum / balustersPerTread) / 2;
+                return railFractionConverter.toConstructionFraction(setback1);
+            } catch (error) {
+                return 'Error';
+            }
+        }
+
+        function calculateBalusterSetback2(run, balustersPerTread) {
+            try {
+                const runNum = railFractionConverter.parseFraction(run);
+                const setback1 = (runNum / balustersPerTread) / 2;
+                const setback2 = (runNum / balustersPerTread) + setback1;
+                return railFractionConverter.toConstructionFraction(setback2);
+            } catch (error) {
+                return 'Error';
+            }
+        }
+
+        function calculateBalusterSetback3(run, balustersPerTread) {
+            try {
+                const runNum = railFractionConverter.parseFraction(run);
+                const setback1 = (runNum / balustersPerTread) / 2;
+                const setback3 = setback1 + ((runNum / balustersPerTread) * 2);
+                return railFractionConverter.toConstructionFraction(setback3);
+            } catch (error) {
+                return 'Error';
+            }
+        }
+
+        function calculateNetBalusterHeight1(railHeight, railThickness, rise, run, balustersPerTread) {
+            try {
+                const rh = railFractionConverter.parseFraction(railHeight);
+                const rt = railFractionConverter.parseFraction(railThickness);
+                const r = railFractionConverter.parseFraction(rise);
+                const ru = railFractionConverter.parseFraction(run);
+                
+                const rakeAngle = Math.atan(r / ru) * (180 / Math.PI);
+                const nosingHeight = rh - (rt / Math.cos(rakeAngle * Math.PI / 180));
+                const setback1 = (ru / balustersPerTread) / 2;
+                
+                const height1 = nosingHeight + (setback1 * Math.tan(rakeAngle * Math.PI / 180));
+                
+                return railFractionConverter.toConstructionFraction(height1);
+            } catch (error) {
+                return 'Error';
+            }
+        }
+
+        function calculateNetBalusterHeight2(railHeight, railThickness, rise, run, balustersPerTread) {
+            try {
+                const rh = railFractionConverter.parseFraction(railHeight);
+                const rt = railFractionConverter.parseFraction(railThickness);
+                const r = railFractionConverter.parseFraction(rise);
+                const ru = railFractionConverter.parseFraction(run);
+                
+                const rakeAngle = Math.atan(r / ru) * (180 / Math.PI);
+                const nosingHeight = rh - (rt / Math.cos(rakeAngle * Math.PI / 180));
+                const setback1 = (ru / balustersPerTread) / 2;
+                const setback2 = (ru / balustersPerTread) + setback1;
+                
+                const height2 = nosingHeight + (setback2 * Math.tan(rakeAngle * Math.PI / 180));
+                
+                return railFractionConverter.toConstructionFraction(height2);
+            } catch (error) {
+                return 'Error';
+            }
+        }
+
+        function calculateNetBalusterHeight3(railHeight, railThickness, rise, run, balustersPerTread) {
+            try {
+                const rh = railFractionConverter.parseFraction(railHeight);
+                const rt = railFractionConverter.parseFraction(railThickness);
+                const r = railFractionConverter.parseFraction(rise);
+                const ru = railFractionConverter.parseFraction(run);
+                
+                const rakeAngle = Math.atan(r / ru) * (180 / Math.PI);
+                const nosingHeight = rh - (rt / Math.cos(rakeAngle * Math.PI / 180));
+                const setback1 = (ru / balustersPerTread) / 2;
+                const setback3 = setback1 + ((ru / balustersPerTread) * 2);
+                
+                const height3 = nosingHeight + (setback3 * Math.tan(rakeAngle * Math.PI / 180));
+                
+                return railFractionConverter.toConstructionFraction(height3);
+            } catch (error) {
+                return 'Error';
+            }
+        }
+
+        // Main calculation function for rail calculator
+        function calculateRailApp() {
+            const riseInput = document.getElementById('rise');
+            const runInput = document.getElementById('run');
+            const railHeightInput = document.getElementById('railHeight');
+            const balustersPerTreadInput = document.getElementById('balustersPerTread');
+            const railThicknessInput = document.getElementById('railThickness');
+            const resultSection = document.getElementById('railResultSection');
+            const errorMessage = document.getElementById('railErrorMessage');
+            
+            resultSection.classList.remove('active');
+            errorMessage.style.display = 'none';
+            
+            // Get input values
+            const rise = riseInput.value;
+            const run = runInput.value;
+            const railHeight = railHeightInput.value;
+            const balustersPerTread = parseInt(balustersPerTreadInput.value);
+            const railThickness = railThicknessInput.value;
+            
+            // Validate inputs
+            if (!rise || !run || !railHeight || !railThickness || isNaN(balustersPerTread)) {
+                showRailError("Please fill in all fields with valid values.");
+                return;
+            }
+            
+            try {
+                // Validate fraction parsing
+                railFractionConverter.parseFraction(rise);
+                railFractionConverter.parseFraction(run);
+                railFractionConverter.parseFraction(railHeight);
+                railFractionConverter.parseFraction(railThickness);
+                
+                // Calculate results
+                const rakeAngle = calculateRakeAngle(rise, run);
+                const netBalusterNosing = calculateNetBalusterNosing(railHeight, railThickness, rise, run);
+                const setback1 = calculateBalusterSetback1(run, balustersPerTread);
+                const setback2 = calculateBalusterSetback2(run, balustersPerTread);
+                const setback3 = calculateBalusterSetback3(run, balustersPerTread);
+                const height1 = calculateNetBalusterHeight1(railHeight, railThickness, rise, run, balustersPerTread);
+                const height2 = calculateNetBalusterHeight2(railHeight, railThickness, rise, run, balustersPerTread);
+                const height3 = calculateNetBalusterHeight3(railHeight, railThickness, rise, run, balustersPerTread);
+                
+                // Display results
+                document.getElementById('rakeAngle').textContent = rakeAngle + '°';
+                document.getElementById('netBalusterNosing').textContent = netBalusterNosing;
+                document.getElementById('setback1').textContent = setback1;
+                document.getElementById('setback2').textContent = setback2;
+                document.getElementById('setback3').textContent = setback3;
+                document.getElementById('height1').textContent = height1;
+                document.getElementById('height2').textContent = height2;
+                document.getElementById('height3').textContent = height3;
+                
+                resultSection.classList.add('active');
+            } catch (error) {
+                showRailError("Please check your input values. Supported formats: 6 11/16, 6-11/16, 6.6875, etc.");
+            }
+        }
+
+        function showRailError(message) {
+            const errorMessage = document.getElementById('railErrorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Add event listeners for Enter key in rail calculator
         document.getElementById('rise').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') calculateRailApp();
         });
