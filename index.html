@@ -9,7 +9,6 @@
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="./icons/icon-192.png">
     <style>
-        /* Sidebar Styles Only */
         * {
             margin: 0;
             padding: 0;
@@ -25,6 +24,7 @@
             display: flex;
         }
 
+        /* Sidebar Styles */
         .sidebar {
             width: 250px;
             background: #1a365d;
@@ -32,6 +32,7 @@
             padding: 20px 0;
             margin-right: 20px;
             border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
         }
 
         .sidebar-header {
@@ -74,10 +75,15 @@
 
         .main-content {
             flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
 
         .calculator-container {
             display: none;
+            width: 100%;
+            max-width: 400px;
         }
 
         .calculator-container.active {
@@ -441,7 +447,6 @@
     <div class="main-content">
         <!-- Baluster Calculator -->
         <div id="baluster-calculator" class="calculator-container active">
-            <!-- ORIGINAL BALUSTER CALCULATOR CODE -->
             <div class="container">
                 <div class="header">
                     <h1>Baluster Calculator</h1>
@@ -503,7 +508,6 @@
 
         <!-- Rail Height Calculator -->
         <div id="rail-calculator" class="calculator-container">
-            <!-- ORIGINAL RAIL HEIGHT CALCULATOR CODE -->
             <div class="container">
                 <div class="header">
                     <h1>Rail Height Calculator</h1>
