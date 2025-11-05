@@ -9,6 +9,7 @@
     <link rel="manifest" href="./manifest.json">
     <link rel="icon" href="./icons/icon-192.png">
     <style>
+        /* Sidebar Styles Only */
         * {
             margin: 0;
             padding: 0;
@@ -19,20 +20,18 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
             min-height: 100vh;
+            padding: 15px;
             color: #333;
             display: flex;
         }
 
-        /* Sidebar Styles */
         .sidebar {
             width: 250px;
             background: #1a365d;
             color: white;
             padding: 20px 0;
-            position: fixed;
-            height: 100vh;
-            overflow-y: auto;
-            z-index: 1000;
+            margin-right: 20px;
+            border-radius: 20px;
         }
 
         .sidebar-header {
@@ -73,17 +72,12 @@
             font-weight: bold;
         }
 
-        /* Main Content */
         .main-content {
             flex: 1;
-            margin-left: 250px;
-            padding: 15px;
-            min-height: 100vh;
         }
 
         .calculator-container {
             display: none;
-            animation: fadeIn 0.5s ease;
         }
 
         .calculator-container.active {
@@ -94,7 +88,7 @@
         .install-prompt {
             position: fixed;
             bottom: 20px;
-            left: 270px;
+            left: 290px;
             right: 20px;
             background: #48bb78;
             color: white;
@@ -117,42 +111,313 @@
             cursor: pointer;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
         @media (max-width: 768px) {
-            .sidebar {
-                width: 200px;
-            }
-            
-            .main-content {
-                margin-left: 200px;
-            }
-            
-            .install-prompt {
-                left: 220px;
-            }
-        }
-
-        @media (max-width: 480px) {
             body {
                 flex-direction: column;
             }
             
             .sidebar {
                 width: 100%;
-                height: auto;
-                position: relative;
-            }
-            
-            .main-content {
-                margin-left: 0;
+                margin-right: 0;
+                margin-bottom: 20px;
             }
             
             .install-prompt {
                 left: 20px;
+            }
+        }
+
+        /* ALL ORIGINAL CALCULATOR STYLES REMAIN EXACTLY THE SAME */
+        .container {
+            max-width: 400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: #1a365d;
+            color: white;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 1rem;
+        }
+
+        .input-section {
+            padding: 25px;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #2d3748;
+            font-size: 1rem;
+        }
+
+        input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            background: #f7fafc;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #4299e1;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.1);
+        }
+
+        .input-hint {
+            font-size: 0.8rem;
+            color: #718096;
+            margin-top: 5px;
+            font-style: italic;
+        }
+
+        .thickness-examples {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .example-tag {
+            background: #e2e8f0;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .example-tag:hover {
+            background: #cbd5e0;
+        }
+
+        .calculate-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .calculate-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(66, 153, 225, 0.3);
+        }
+
+        .calculate-btn:active {
+            transform: translateY(0);
+        }
+
+        .result-section {
+            padding: 25px;
+            background: #f7fafc;
+            border-top: 2px solid #e2e8f0;
+            display: none;
+        }
+
+        .result-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .result-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2d3748;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .result-item {
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid #e2e8f0;
+        }
+
+        .result-label {
+            font-size: 0.9rem;
+            color: #718096;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .result-value {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: #2d3748;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px;
+            display: none;
+            border: 1px solid #feb2b2;
+        }
+
+        .info-section {
+            padding: 20px;
+            background: #ebf8ff;
+            border-top: 2px solid #bee3f8;
+            font-size: 0.9rem;
+            color: #2c5282;
+            line-height: 1.5;
+        }
+
+        /* Rail Calculator Specific Styles */
+        .basic-results {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .setback-results {
+            background: #ebf8ff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #bee3f8;
+        }
+
+        .setback-title {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #2c5282;
+            font-size: 1.1rem;
+            font-weight: 700;
+        }
+
+        .setback-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .setback-pair {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .setback-card {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .setback-name {
+            font-size: 0.85rem;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .setback-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #2d3748;
+        }
+
+        .height-card {
+            text-align: center;
+            padding: 15px;
+            background: white;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .height-name {
+            font-size: 0.85rem;
+            color: #4a5568;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .height-value {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #2d3748;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+            
+            .container {
+                border-radius: 15px;
+            }
+            
+            .result-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .basic-results {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.5rem;
+            }
+            
+            .thickness-examples {
+                justify-content: center;
+            }
+            
+            .setback-pair {
+                grid-template-columns: 1fr;
+                gap: 8px;
             }
         }
     </style>
@@ -176,7 +441,7 @@
     <div class="main-content">
         <!-- Baluster Calculator -->
         <div id="baluster-calculator" class="calculator-container active">
-            <!-- Original Baluster Calculator Code -->
+            <!-- ORIGINAL BALUSTER CALCULATOR CODE -->
             <div class="container">
                 <div class="header">
                     <h1>Baluster Calculator</h1>
@@ -238,7 +503,7 @@
 
         <!-- Rail Height Calculator -->
         <div id="rail-calculator" class="calculator-container">
-            <!-- Original Rail Height Calculator Code -->
+            <!-- ORIGINAL RAIL HEIGHT CALCULATOR CODE -->
             <div class="container">
                 <div class="header">
                     <h1>Rail Height Calculator</h1>
@@ -399,7 +664,7 @@
         }
     </script>
 
-    <!-- Baluster Calculator Script -->
+    <!-- Baluster Calculator Script (ORIGINAL) -->
     <script>
         // Improved fraction handling system
         class FractionConverter {
@@ -740,7 +1005,7 @@
         });
     </script>
 
-    <!-- Rail Height Calculator Script -->
+    <!-- Rail Height Calculator Script (ORIGINAL) -->
     <script>
         // Fraction converter for rail calculator
         class RailFractionConverter {
