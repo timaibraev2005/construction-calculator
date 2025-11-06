@@ -930,6 +930,10 @@
             <span class="nav-icon">➗</span>
             <span class="nav-text">Fraction Calculator</span>
         </div>
+        <div class="nav-item" onclick="showCalculator('rail-miter')">
+            <span class="nav-icon">🔪</span>
+            <span class="nav-text">Rail Miter Calculator</span>
+        </div>
         <div class="nav-item back-to-catalog" onclick="showCatalog()">
             <span class="nav-icon">🏠</span>
             <span class="nav-text">Back to Catalog</span>
@@ -963,6 +967,12 @@
                 <div class="catalog-icon">➗</div>
                 <div class="catalog-title">Fraction Calculator</div>
                 <div class="catalog-desc">Advanced fraction calculations for construction</div>
+            </div>
+            
+            <div class="catalog-card" onclick="showCalculator('rail-miter')">
+                <div class="catalog-icon">🔪</div>
+                <div class="catalog-title">Rail Miter Calculator</div>
+                <div class="catalog-desc">Calculate perfect miter cuts for rail connections</div>
             </div>
         </div>
     </div>
@@ -1203,6 +1213,72 @@
         </div>
     </div>
 
+    <!-- Rail Miter Calculator -->
+    <div id="rail-miter-calculator" class="calculator-container">
+        <div class="container">
+            <div class="calc-header">
+                <h1>Rail Miter Calculator</h1>
+                <p>Professional miter angle calculations</p>
+            </div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="scenarioType">Connection Type:</label>
+                    <select id="scenarioType">
+                        <option value="vertical-to-inclined">Vertical Rail + Inclined Rail</option>
+                        <option value="horizontal-to-inclined">Horizontal Rail + Inclined Rail</option>
+                    </select>
+                </div>
+
+                <div class="input-group">
+                    <label for="inclinedAngle">Inclined Rail Angle from Horizontal (°):</label>
+                    <input type="number" id="inclinedAngle" min="0" max="90" value="15" step="0.1">
+                    <div class="input-hint">Enter angle between 0° and 90°</div>
+                </div>
+
+                <div class="input-group">
+                    <label for="railDirection">Inclined Rail Direction:</label>
+                    <select id="railDirection">
+                        <option value="up">Going UP from connection</option>
+                        <option value="down">Going DOWN from connection</option>
+                    </select>
+                </div>
+                
+                <button class="calculate-btn" onclick="calculateMiterAngle()">Calculate Miter Angle</button>
+            </div>
+
+            <div class="result-section" id="miterResultSection">
+                <div class="result-title">Miter Cut Results</div>
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-label">Miter Angle</div>
+                        <div class="result-value" id="miterAngle">-</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Cut Type</div>
+                        <div class="result-value" id="cutType">-</div>
+                    </div>
+                </div>
+                
+                <div class="instructions">
+                    <h4>Cutting Instructions:</h4>
+                    <ul>
+                        <li>Set your saw to <strong><span id="sawAngleDisplay">-</span>°</strong></li>
+                        <li>Cut BOTH rails at this same angle</li>
+                        <li>Join the cut ends for perfect connection</li>
+                        <li>Use a miter box for precision cuts</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="error-message" id="miterErrorMessage"></div>
+
+            <div class="info-section">
+                <strong>Note:</strong> Professional rail miter calculator. Works completely offline. Install to home screen for best experience.
+            </div>
+        </div>
+    </div>
+
     <div class="install-prompt" id="installPrompt">
         <strong>Install MW Staircase Calc</strong>
         <p>For quick access and offline use</p>
@@ -1210,7 +1286,6 @@
         <button class="install-btn" onclick="dismissInstallPrompt()" style="background: transparent; color: white; border: 1px solid white; margin-left: 8px;">Later</button>
     </div>
 
-    <!-- ALL JAVASCRIPT CODE REMAINS EXACTLY THE SAME AS BEFORE -->
     <script>
         // PWA Installation with iOS support
         let deferredPrompt;
@@ -1321,18 +1396,21 @@
             const titles = {
                 'baluster': 'Baluster Calculator',
                 'rail': 'Rail Height Calculator', 
-                'fraction': 'Fraction Calculator'
+                'fraction': 'Fraction Calculator',
+                'rail-miter': 'Rail Miter Calculator'
             };
             document.querySelector('.header-title').textContent = titles[calculatorType];
             
             // Close sidebar
             toggleSidebar(false);
 
-            // Initialize fraction calculator if it's selected
+            // Initialize calculators if needed
             if (calculatorType === 'fraction' && typeof fractionCalculator !== 'undefined') {
                 setTimeout(() => {
                     fractionCalculator.expressionDisplay.focus();
                 }, 100);
+            } else if (calculatorType === 'rail-miter') {
+                setTimeout(calculateMiterAngle, 100);
             }
         }
 
@@ -1372,7 +1450,7 @@
         });
     </script>
 
-    <!-- ALL THE ORIGINAL CALCULATOR SCRIPTS REMAIN EXACTLY THE SAME -->
+    <!-- ALL THE ORIGINAL CALCULATOR SCRIPTS -->
     <script>
         // Improved fraction handling system
         class FractionConverter {
@@ -2311,6 +2389,71 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             fractionCalculator = new FractionCalculator();
+        });
+    </script>
+
+    <!-- Rail Miter Calculator Script -->
+    <script>
+        // Rail Miter Calculator Functions
+        function calculateMiterAngle() {
+            const scenarioType = document.getElementById('scenarioType').value;
+            const inclinedAngle = parseFloat(document.getElementById('inclinedAngle').value);
+            const railDirection = document.getElementById('railDirection').value;
+            const resultSection = document.getElementById('miterResultSection');
+            const errorMessage = document.getElementById('miterErrorMessage');
+            
+            resultSection.classList.remove('active');
+            errorMessage.style.display = 'none';
+            
+            // Validate input
+            if (isNaN(inclinedAngle) || inclinedAngle < 0 || inclinedAngle > 90) {
+                showMiterError("Please enter a valid angle between 0° and 90°.");
+                return;
+            }
+            
+            let miterAngle, cutType;
+            
+            // Calculate based on scenario
+            if (scenarioType === 'vertical-to-inclined') {
+                if (railDirection === 'up') {
+                    miterAngle = (90 - inclinedAngle) / 2;
+                    cutType = "Vertical + Inclined (Up)";
+                } else {
+                    miterAngle = (90 + inclinedAngle) / 2;
+                    cutType = "Vertical + Inclined (Down)";
+                }
+            } else { // horizontal-to-inclined
+                if (railDirection === 'up') {
+                    miterAngle = inclinedAngle / 2;
+                    cutType = "Horizontal + Inclined (Up)";
+                } else {
+                    miterAngle = (180 - inclinedAngle) / 2;
+                    cutType = "Horizontal + Inclined (Down)";
+                }
+            }
+            
+            // Display results
+            document.getElementById('miterAngle').textContent = miterAngle.toFixed(1) + '°';
+            document.getElementById('cutType').textContent = cutType;
+            document.getElementById('sawAngleDisplay').textContent = miterAngle.toFixed(1);
+            
+            resultSection.classList.add('active');
+        }
+
+        function showMiterError(message) {
+            const errorMessage = document.getElementById('miterErrorMessage');
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        // Add event listeners for Enter key
+        document.getElementById('scenarioType').addEventListener('change', calculateMiterAngle);
+        document.getElementById('inclinedAngle').addEventListener('input', calculateMiterAngle);
+        document.getElementById('railDirection').addEventListener('change', calculateMiterAngle);
+
+        // Auto-calculate on load
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(calculateMiterAngle, 100);
         });
     </script>
 </body>
