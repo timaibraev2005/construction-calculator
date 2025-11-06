@@ -1184,6 +1184,7 @@
                             <li>Place tape measure starting from one post</li>
                             <li>Mark each point sequentially using the values shown</li>
                             <li>These are center points for each baluster</li>
+                            <li>Last point shows position of second post for verification</li>
                         </ol>
                     </div>
                 </div>
@@ -1804,24 +1805,24 @@
             document.getElementById('nextPointBtn').disabled = currentTapeIndex === totalTapePoints - 1;
         }
 
-        // NEW: Modified calculateBaluster function to also calculate tape points
+        // CORRECTED: Modified calculateBaluster function to also calculate tape points with SYMMETRICAL spacing
         function calculateBalusterWithTape(W_total, T) {
             const result = calculateBaluster(W_total, T);
             
             if (result.success) {
-                // Calculate all tape measure points
+                // Calculate all tape measure points with SYMMETRICAL spacing
                 const C1_num = fractionConverter.parseFraction(result.C1);
                 const Step_num = fractionConverter.parseFraction(result.Step);
                 
                 tapeMeasurePoints = [];
                 
-                // Add first point (C1)
+                // Add first point (C1) - center of first baluster
                 tapeMeasurePoints.push({
                     value: result.C1,
                     description: "First baluster center"
                 });
                 
-                // Add intermediate points
+                // Add intermediate points - centers of remaining balusters
                 for (let i = 1; i < result.N; i++) {
                     const pointValue = C1_num + i * Step_num;
                     tapeMeasurePoints.push({
@@ -1830,11 +1831,14 @@
                     });
                 }
                 
-                // Add final reference point (optional)
-                const lastPoint = C1_num + (result.N - 1) * Step_num;
+                // CORRECTED: Add final point showing position where second post should be
+                // This equals: last baluster center + C1 (to maintain symmetry)
+                const lastBalusterCenter = C1_num + (result.N - 1) * Step_num;
+                const secondPostPosition = lastBalusterCenter + C1_num;
+                
                 tapeMeasurePoints.push({
-                    value: fractionConverter.toConstructionFraction(lastPoint + Step_num),
-                    description: "Reference point after last baluster"
+                    value: fractionConverter.toConstructionFraction(secondPostPosition),
+                    description: "Second post position (verification)"
                 });
                 
                 totalTapePoints = tapeMeasurePoints.length;
