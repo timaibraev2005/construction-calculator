@@ -491,6 +491,112 @@
             color: #000000;
         }
 
+        /* NEW: Tape Measure Styles */
+        .tape-measure-section {
+            background: #f8f8f8;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 25px;
+            border: 2px solid #e0e0e0;
+        }
+
+        .tape-nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 20px 0;
+        }
+
+        .tape-nav-btn {
+            background: #000000;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-width: 100px;
+        }
+
+        .tape-nav-btn:hover:not(:disabled) {
+            background: #333333;
+            transform: translateY(-2px);
+        }
+
+        .tape-nav-btn:disabled {
+            background: #666666;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+
+        .tape-current-point {
+            text-align: center;
+            flex: 1;
+            padding: 0 20px;
+        }
+
+        .tape-point-number {
+            font-size: 1rem;
+            color: #666666;
+            margin-bottom: 5px;
+        }
+
+        .tape-point-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #000000;
+            margin-bottom: 5px;
+        }
+
+        .tape-point-desc {
+            font-size: 0.9rem;
+            color: #666666;
+        }
+
+        .tape-progress {
+            margin: 20px 0;
+        }
+
+        .tape-progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .tape-progress-fill {
+            height: 100%;
+            background: #000000;
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        .tape-progress-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #666666;
+            margin-top: 5px;
+        }
+
+        .tape-instructions {
+            background: white;
+            padding: 15px;
+            border-radius: 6px;
+            border: 1px solid #e0e0e0;
+            font-size: 0.9rem;
+            color: #666666;
+        }
+
+        .tape-instructions ol {
+            margin: 10px 0 0 20px;
+        }
+
+        .tape-instructions li {
+            margin-bottom: 5px;
+        }
+
         .error-message {
             background: #f8f8f8;
             color: #000000;
@@ -878,6 +984,21 @@
                 padding: 20px 2px 0;
                 margin: 0 2px;
             }
+
+            /* NEW: Mobile styles for tape measure */
+            .tape-nav {
+                flex-direction: column;
+                gap: 15px;
+            }
+            
+            .tape-current-point {
+                padding: 0;
+                order: -1;
+            }
+            
+            .tape-point-value {
+                font-size: 1.6rem;
+            }
         }
 
         @media (max-width: 360px) {
@@ -1027,6 +1148,43 @@
                     <div class="result-item">
                         <div class="result-label">Spacing Type</div>
                         <div class="result-value" id="resultType">-</div>
+                    </div>
+                </div>
+
+                <!-- NEW: Tape Measure Navigation -->
+                <div class="tape-measure-section" id="tapeMeasureSection" style="display: none;">
+                    <div class="result-title">Tape Measure Marking Points</div>
+                    
+                    <div class="tape-nav">
+                        <button class="tape-nav-btn" onclick="navigateTapePoint(-1)" id="prevPointBtn">
+                            ← Previous
+                        </button>
+                        
+                        <div class="tape-current-point">
+                            <div class="tape-point-number" id="currentPointNumber">Point 1 of 10</div>
+                            <div class="tape-point-value" id="currentPointValue">15 ⅝"</div>
+                            <div class="tape-point-desc" id="currentPointDesc">First baluster center</div>
+                        </div>
+                        
+                        <button class="tape-nav-btn" onclick="navigateTapePoint(1)" id="nextPointBtn">
+                            Next →
+                        </button>
+                    </div>
+                    
+                    <div class="tape-progress">
+                        <div class="tape-progress-bar">
+                            <div class="tape-progress-fill" id="tapeProgressFill"></div>
+                        </div>
+                        <div class="tape-progress-text" id="tapeProgressText">1/10 points</div>
+                    </div>
+
+                    <div class="tape-instructions">
+                        <strong>Instructions:</strong> 
+                        <ol>
+                            <li>Place tape measure starting from one post</li>
+                            <li>Mark each point sequentially using the values shown</li>
+                            <li>These are center points for each baluster</li>
+                        </ol>
                     </div>
                 </div>
             </div>
@@ -1609,6 +1767,85 @@
 
         const fractionConverter = new FractionConverter();
 
+        // NEW: Global variables for tape measure navigation
+        let tapeMeasurePoints = [];
+        let currentTapeIndex = 0;
+        let totalTapePoints = 0;
+
+        // NEW: Tape measure navigation function
+        function navigateTapePoint(direction) {
+            currentTapeIndex += direction;
+            
+            // Clamp between 0 and totalPoints - 1
+            currentTapeIndex = Math.max(0, Math.min(currentTapeIndex, totalTapePoints - 1));
+            
+            updateTapeDisplay();
+        }
+
+        // NEW: Update tape measure display
+        function updateTapeDisplay() {
+            if (tapeMeasurePoints.length === 0) return;
+            
+            const point = tapeMeasurePoints[currentTapeIndex];
+            
+            document.getElementById('currentPointNumber').textContent = 
+                `Point ${currentTapeIndex + 1} of ${totalTapePoints}`;
+            document.getElementById('currentPointValue').textContent = point.value + '"';
+            document.getElementById('currentPointDesc').textContent = point.description;
+            
+            // Update progress
+            const progress = ((currentTapeIndex + 1) / totalTapePoints) * 100;
+            document.getElementById('tapeProgressFill').style.width = progress + '%';
+            document.getElementById('tapeProgressText').textContent = 
+                `${currentTapeIndex + 1}/${totalTapePoints} points`;
+            
+            // Update button states
+            document.getElementById('prevPointBtn').disabled = currentTapeIndex === 0;
+            document.getElementById('nextPointBtn').disabled = currentTapeIndex === totalTapePoints - 1;
+        }
+
+        // NEW: Modified calculateBaluster function to also calculate tape points
+        function calculateBalusterWithTape(W_total, T) {
+            const result = calculateBaluster(W_total, T);
+            
+            if (result.success) {
+                // Calculate all tape measure points
+                const C1_num = fractionConverter.parseFraction(result.C1);
+                const Step_num = fractionConverter.parseFraction(result.Step);
+                
+                tapeMeasurePoints = [];
+                
+                // Add first point (C1)
+                tapeMeasurePoints.push({
+                    value: result.C1,
+                    description: "First baluster center"
+                });
+                
+                // Add intermediate points
+                for (let i = 1; i < result.N; i++) {
+                    const pointValue = C1_num + i * Step_num;
+                    tapeMeasurePoints.push({
+                        value: fractionConverter.toConstructionFraction(pointValue),
+                        description: `Baluster ${i + 1} center`
+                    });
+                }
+                
+                // Add final reference point (optional)
+                const lastPoint = C1_num + (result.N - 1) * Step_num;
+                tapeMeasurePoints.push({
+                    value: fractionConverter.toConstructionFraction(lastPoint + Step_num),
+                    description: "Reference point after last baluster"
+                });
+                
+                totalTapePoints = tapeMeasurePoints.length;
+                currentTapeIndex = 0;
+                
+                result.tapePoints = tapeMeasurePoints;
+            }
+            
+            return result;
+        }
+
         // Main calculation function with S < 4 condition
         function calculateBaluster(W_total, T) {
             try {
@@ -1713,14 +1950,17 @@
             }
         }
 
+        // MODIFIED: Updated calculateBalusterApp to include tape measure functionality
         function calculateBalusterApp() {
             const wTotalInput = document.getElementById('wTotal');
             const thicknessInput = document.getElementById('thickness');
             const resultSection = document.getElementById('resultSection');
             const errorMessage = document.getElementById('errorMessage');
+            const tapeMeasureSection = document.getElementById('tapeMeasureSection');
             
             resultSection.classList.remove('active');
             errorMessage.style.display = 'none';
+            tapeMeasureSection.style.display = 'none';
             
             let wTotal;
             try {
@@ -1759,7 +1999,7 @@
                 return;
             }
             
-            const result = calculateBaluster(wTotal, thickness);
+            const result = calculateBalusterWithTape(wTotal, thickness);
             
             if (result.success) {
                 document.getElementById('resultN').textContent = result.N;
@@ -1767,6 +2007,12 @@
                 document.getElementById('resultStep').textContent = result.Step;
                 document.getElementById('resultType').textContent = result.type;
                 resultSection.classList.add('active');
+                
+                // Show tape measure section if we have points
+                if (result.tapePoints && result.tapePoints.length > 0) {
+                    tapeMeasureSection.style.display = 'block';
+                    updateTapeDisplay();
+                }
             } else {
                 showBalusterError(result.message);
             }
@@ -1777,6 +2023,20 @@
             errorMessage.textContent = message;
             errorMessage.style.display = 'block';
         }
+
+        // NEW: Add keyboard navigation for tape measure
+        document.addEventListener('keydown', function(e) {
+            const balusterActive = document.getElementById('baluster-calculator').classList.contains('active');
+            const tapeVisible = document.getElementById('tapeMeasureSection').style.display !== 'none';
+            
+            if (balusterActive && tapeVisible) {
+                if (e.key === 'ArrowLeft') {
+                    navigateTapePoint(-1);
+                } else if (e.key === 'ArrowRight') {
+                    navigateTapePoint(1);
+                }
+            }
+        });
 
         document.getElementById('wTotal').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') calculateBalusterApp();
@@ -2458,4 +2718,3 @@
     </script>
 </body>
 </html>
-
